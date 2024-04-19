@@ -11,7 +11,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -29,6 +31,7 @@ public class MP4_Window {
 	private JFrame consumptionFrame;
 	private JFrame restFrame;
 	private JFrame riverFrame;
+	private JFrame tradeFrame;
 	
 	private JPanel stopPanel;
 	private JPanel suppliesPanel;
@@ -36,6 +39,7 @@ public class MP4_Window {
 	private JPanel consumptionPanel;
 	private JPanel restPanel;
 	private JPanel riverPanel;
+	private JPanel tradePanel;
 	
 	private JOptionPane popUP;
 	
@@ -55,11 +59,13 @@ public class MP4_Window {
 	private boolean atOregon = false;
 	private boolean atShop = false;
 	private boolean atTrade = false;
+	private boolean tradeCompleted = false;
 	
 	ArrayList<Landmark> landmarks = new ArrayList<Landmark>();
 	
 	Wagon wagon = new Wagon();
 	Events events = new Events();
+	Trader trader = new Trader();
 
 	/**
 	 * Launch the application.
@@ -167,6 +173,7 @@ public class MP4_Window {
 					}
 				}
 				calculateTravelDate(1);
+				tradeCompleted = false;
 				wagon.updateInventory(0, 0);
 			}
 		});
@@ -256,6 +263,7 @@ public class MP4_Window {
 	 * Display changes depending on if they are on the road, at a landmark, or staying in a fort
 	 */
 	private void createStopDisplay(boolean shopEnabled, boolean tradeEnabled) {
+		mainFrame.setEnabled(false);
 		stopPanel = new JPanel(new GridLayout(9, 1));
 		JButton proceedButton = new JButton("Proceed on the trail");
 		proceedButton.addActionListener(new ActionListener() {
@@ -381,8 +389,12 @@ public class MP4_Window {
 				 * Not implemented, will allow the player to trade with known/random people on the trail
 				 */
 				public void actionPerformed(ActionEvent e) {
-						popUP = new JOptionPane();
-						popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+						if(!tradeCompleted) {
+							createTradeDisplay();
+						}
+						else {
+							
+						}
 					}
 				});
 			stopPanel.add(tradeButton);
@@ -463,16 +475,43 @@ public class MP4_Window {
 		suppliesFrame.setBounds(1000, 100, 450, 300);
 		suppliesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
-		suppliesPanel = new JPanel(new GridLayout(4, 1));
+		suppliesPanel = new JPanel(new GridLayout(13, 1));
 		
 		JLabel stopFoodLabel = new JLabel("Food: " + wagon.getFoodWeight());
 		suppliesPanel.add(stopFoodLabel);
+		
+		JLabel stopFlourLabel = new JLabel("Flour: " + wagon.getFlourAmount());
+		suppliesPanel.add(stopFlourLabel);
+		
+		JLabel stopStarterLabel = new JLabel("Starter: " + wagon.getStarterAmount());
+		suppliesPanel.add(stopStarterLabel);
 		
 		JLabel stopDryLabel = new JLabel("Dry Goods: " + wagon.getDryGoodsWeight());
 		suppliesPanel.add(stopDryLabel);
 		
 		JLabel stopWaterLabel = new JLabel("Water: " + wagon.getWaterAmount());
 		suppliesPanel.add(stopWaterLabel);
+		
+		JLabel stopClothingLabel = new JLabel("Clothing: " + wagon.getClothingAmount());
+		suppliesPanel.add(stopClothingLabel);
+		
+		JLabel stopMoneyLabel = new JLabel("Money: " + wagon.getMoneyAmount());
+		suppliesPanel.add(stopMoneyLabel);
+		
+		JLabel stopWheelLabel = new JLabel("Wagon Wheel: " + wagon.getWheelAmount());
+		suppliesPanel.add(stopWheelLabel);
+		
+		JLabel stopAxelLabel = new JLabel("Wagon Axel: " + wagon.getAxelAmount());
+		suppliesPanel.add(stopAxelLabel);
+		
+		JLabel stopTongueLabel = new JLabel("Wagon Tongue: " + wagon.getStarterAmount());
+		suppliesPanel.add(stopTongueLabel);
+		
+		JLabel stopOxenLabel = new JLabel("Oxen: " + wagon.getOxenAmount());
+		suppliesPanel.add(stopOxenLabel);
+		
+		JLabel stopYokeLabel = new JLabel("Oxen Yoke: " + wagon.getYokeAmount());
+		suppliesPanel.add(stopYokeLabel);
 		
 		JButton stopCloseButton = new JButton("Close Window");
 		stopCloseButton.addActionListener(new ActionListener() {
@@ -487,6 +526,7 @@ public class MP4_Window {
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Closing Supplies Menu");
 					suppliesFrame.dispatchEvent(new WindowEvent(stopFrame, WindowEvent.WINDOW_CLOSING));
+					stopFrame.setEnabled(true);
 				}
 			});
 		suppliesPanel.add(stopCloseButton);
@@ -494,6 +534,7 @@ public class MP4_Window {
 		suppliesFrame.add(suppliesPanel);
 		suppliesFrame.pack();
 		suppliesFrame.setVisible(true);
+		stopFrame.setEnabled(false);
 	}
 	
 	/** 
@@ -887,5 +928,66 @@ public class MP4_Window {
 		riverFrame.add(riverPanel);
 		riverFrame.pack();
 		riverFrame.setVisible(true);
+	}
+	
+	public void createTradeDisplay() {
+		System.out.println("Creating Trade");
+		tradeFrame = new JFrame("Trading");
+		tradeFrame.setBounds(800, 375, 450, 300);
+		tradeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		tradePanel = new JPanel(new GridLayout(1, 3));
+		
+		trader.initializeTrade();
+		
+		
+		System.out.println("Trade accepted");
+		JLabel tradeLabel = new JLabel("A trader offers " + trader.getTraderQuantity() + " " + trader.getTraderItem() + ", they want " + trader.getComputerQuantity() + " " + trader.getComputerItem());
+		
+		JButton acceptTrade = new JButton("DEAL");
+		acceptTrade.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch(trader.getTraderItem()) {
+					case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() + trader.getTraderQuantity()); break;
+					case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() + trader.getTraderQuantity()); break;
+					case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() + trader.getTraderQuantity()); break;
+					case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() + trader.getTraderQuantity()); break;
+					case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() + trader.getTraderQuantity()); break;
+					case "Water": wagon.setWaterAmount(wagon.getWaterAmount() + trader.getTraderQuantity()); break;
+					case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() + trader.getTraderQuantity()); break;
+					case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() + trader.getTraderQuantity()); break;
+					case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() + trader.getTraderQuantity()); break;
+				}
+				switch(trader.getComputerItem()) {
+					case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() - trader.getComputerQuantity()); break;
+					case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() - trader.getComputerQuantity()); break;
+					case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() - trader.getComputerQuantity()); break;
+					case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() - trader.getComputerQuantity()); break;
+					case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() - trader.getComputerQuantity()); break;
+					case "Water": wagon.setWaterAmount(wagon.getWaterAmount() - trader.getComputerQuantity()); break;
+					case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() - trader.getComputerQuantity()); break;
+					case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() - trader.getComputerQuantity()); break;
+					case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() - trader.getComputerQuantity()); break;
+				}	
+				popUP.showMessageDialog(null, "Pleasure Doing Bussiness", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+				tradeCompleted = true;
+				tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		JButton denyTrade = new JButton("NO DEAL");
+		denyTrade.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				popUP.showMessageDialog(null, "That's a shame", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+				tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		tradePanel.add(acceptTrade);
+		tradePanel.add(tradeLabel);
+		tradePanel.add(denyTrade);
+		tradeFrame.add(tradePanel);
+		tradeFrame.pack();
+		tradeFrame.setVisible(true);
 	}
 }
