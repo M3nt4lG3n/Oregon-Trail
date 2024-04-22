@@ -10,11 +10,14 @@ package MP4_Package;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -32,6 +35,8 @@ public class MP4_Window {
 	private JFrame restFrame;
 	private JFrame riverFrame;
 	private JFrame tradeFrame;
+	private JFrame conversationFrame;
+	private JFrame bakingFrame;
 	
 	private JPanel stopPanel;
 	private JPanel suppliesPanel;
@@ -40,6 +45,7 @@ public class MP4_Window {
 	private JPanel restPanel;
 	private JPanel riverPanel;
 	private JPanel tradePanel;
+	private JPanel conversationPanel;
 	
 	private JOptionPane popUP;
 	
@@ -61,11 +67,15 @@ public class MP4_Window {
 	private boolean atTrade = false;
 	private boolean tradeCompleted = false;
 	
+	private final int MISSOURIINDEX = 1;
+	private final int ELKHORNINDEX = 4;
+	
 	ArrayList<Landmark> landmarks = new ArrayList<Landmark>();
 	
 	Wagon wagon = new Wagon();
 	Events events = new Events();
 	Trader trader = new Trader();
+	Random random = new Random();
 
 	/**
 	 * Launch the application.
@@ -159,19 +169,19 @@ public class MP4_Window {
 				if(atLandmark) {
 					landmarkCount++;
 					popUP = new JOptionPane();
-					popUP.showMessageDialog(null, "You have reached a landmark", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+					popUP.showMessageDialog(null, "You have reached a landmark", "Nice", JOptionPane.PLAIN_MESSAGE);
 					//3 is the river in the CSV file
-					if(landmarkCount == 3) {
+					if(landmarkCount == MISSOURIINDEX || landmarkCount == ELKHORNINDEX) {
 						createRiverDisplay();
 					}
 					milesLabel.setText("" + landmarks.get(index).getDistance());
 					landmarkLabel.setText(landmarks.get(index).getName());
-					atLandmark = false;
 					if(atOregon) {
 						popUP = new JOptionPane();
-						popUP.showMessageDialog(null, "You have reached Oregon, please exit", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+						popUP.showMessageDialog(null, "You have reached Oregon, please exit", "Congratulations", JOptionPane.PLAIN_MESSAGE);
 					}
 				}
+				atLandmark = false;
 				calculateTravelDate(1);
 				tradeCompleted = false;
 				wagon.updateInventory(0, 0);
@@ -398,6 +408,15 @@ public class MP4_Window {
 					}
 				});
 			stopPanel.add(tradeButton);
+			if(!shopEnabled) {
+				JButton conversationButton = new JButton("Stop to Talk");
+				conversationButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						createConversationDisplay(landmarks.get(index).getName());
+					}
+				});
+				stopPanel.add(conversationButton);
+			}
 		}
 		if(shopEnabled) {
 			JButton shopButton = new JButton("Shop for Supplies");
@@ -416,6 +435,14 @@ public class MP4_Window {
 					}
 				});
 			stopPanel.add(shopButton);
+			
+			JButton conversationButton = new JButton("Stop to Talk");
+			conversationButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					createConversationDisplay(landmarks.get(index).getName());
+				}
+			});
+			stopPanel.add(conversationButton);
 		}
 	}
 	
@@ -628,8 +655,8 @@ public class MP4_Window {
 		if(distance <= 0) {
 			distance = 0;
 			index++;
-			if(index >= 4) {
-				index = 3;
+			if(index >= landmarks.size()) {
+				index = landmarks.size() - 1;
 				atOregon = true;
 			}
 			if(landmarks.get(index - 1).getShop()) {
@@ -940,44 +967,62 @@ public class MP4_Window {
 		
 		trader.initializeTrade();
 		
-		
-		System.out.println("Trade accepted");
 		JLabel tradeLabel = new JLabel("A trader offers " + trader.getTraderQuantity() + " " + trader.getTraderItem() + ", they want " + trader.getComputerQuantity() + " " + trader.getComputerItem());
 		
 		JButton acceptTrade = new JButton("DEAL");
 		acceptTrade.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				switch(trader.getTraderItem()) {
-					case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() + trader.getTraderQuantity()); break;
-					case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() + trader.getTraderQuantity()); break;
-					case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() + trader.getTraderQuantity()); break;
-					case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() + trader.getTraderQuantity()); break;
-					case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() + trader.getTraderQuantity()); break;
-					case "Water": wagon.setWaterAmount(wagon.getWaterAmount() + trader.getTraderQuantity()); break;
-					case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() + trader.getTraderQuantity()); break;
-					case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() + trader.getTraderQuantity()); break;
-					case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() + trader.getTraderQuantity()); break;
-				}
+				int currentComputerItemAmount = 0;
+				System.out.println("Trade accepted");
 				switch(trader.getComputerItem()) {
-					case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() - trader.getComputerQuantity()); break;
-					case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() - trader.getComputerQuantity()); break;
-					case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() - trader.getComputerQuantity()); break;
-					case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() - trader.getComputerQuantity()); break;
-					case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() - trader.getComputerQuantity()); break;
-					case "Water": wagon.setWaterAmount(wagon.getWaterAmount() - trader.getComputerQuantity()); break;
-					case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() - trader.getComputerQuantity()); break;
-					case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() - trader.getComputerQuantity()); break;
-					case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() - trader.getComputerQuantity()); break;
-				}	
-				popUP.showMessageDialog(null, "Pleasure Doing Bussiness", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
-				tradeCompleted = true;
-				tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
+					case "Oxen": currentComputerItemAmount = wagon.getOxenAmount(); break;
+					case "Yoke": currentComputerItemAmount = wagon.getYokeAmount(); break;
+					case "Wagon_Wheel": currentComputerItemAmount = wagon.getWheelAmount(); break;
+					case "Wagon_Axel": currentComputerItemAmount = wagon.getAxelAmount(); break;
+					case "Wagon_Tongue": currentComputerItemAmount = wagon.getTongueAmount(); break;
+					case "Water": currentComputerItemAmount = wagon.getWaterAmount(); break;
+					case "Flour": currentComputerItemAmount = wagon.getFlourAmount(); break;
+					case "Starter": currentComputerItemAmount = wagon.getStarterAmount(); break;
+					case "Clothing": currentComputerItemAmount = wagon.getClothingAmount(); break;
+				}
+				if(currentComputerItemAmount > trader.getTraderQuantity()) {
+					switch(trader.getTraderItem()) {
+						case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() + trader.getTraderQuantity()); break;
+						case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() + trader.getTraderQuantity()); break;
+						case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() + trader.getTraderQuantity()); break;
+						case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() + trader.getTraderQuantity()); break;
+						case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() + trader.getTraderQuantity()); break;
+						case "Water": wagon.setWaterAmount(wagon.getWaterAmount() + trader.getTraderQuantity()); break;
+						case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() + trader.getTraderQuantity()); break;
+						case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() + trader.getTraderQuantity()); break;
+						case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() + trader.getTraderQuantity()); break;
+					}
+					switch(trader.getComputerItem()) {
+						case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() - trader.getComputerQuantity()); break;
+						case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() - trader.getComputerQuantity()); break;
+						case "Wagon_Wheel": wagon.setWheelAmount(wagon.getWheelAmount() - trader.getComputerQuantity()); break;
+						case "Wagon_Axel": wagon.setAxelAmount(wagon.getAxelAmount() - trader.getComputerQuantity()); break;
+						case "Wagon_Tongue": wagon.setTongueAmount(wagon.getTongueAmount() - trader.getComputerQuantity()); break;
+						case "Water": wagon.setWaterAmount(wagon.getWaterAmount() - trader.getComputerQuantity()); break;
+						case "Flour": wagon.setFlourAmount(wagon.getFlourAmount() - trader.getComputerQuantity()); break;
+						case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() - trader.getComputerQuantity()); break;
+						case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() - trader.getComputerQuantity()); break;
+					}	
+					popUP.showMessageDialog(null, "Pleasure Doing Bussiness", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+					tradeCompleted = true;
+					tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
+				}
+				else {
+					popUP.showMessageDialog(null, "Sorry but you don't have enough", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+					tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
+				}
 			}
 		});
 		
 		JButton denyTrade = new JButton("NO DEAL");
 		denyTrade.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("Trade denied");
 				popUP.showMessageDialog(null, "That's a shame", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
 				tradeFrame.dispatchEvent(new WindowEvent(tradeFrame, WindowEvent.WINDOW_CLOSING));
 			}
@@ -989,5 +1034,68 @@ public class MP4_Window {
 		tradeFrame.add(tradePanel);
 		tradeFrame.pack();
 		tradeFrame.setVisible(true);
+	}
+	
+	public void createConversationDisplay(String location) {
+		String conversationText = "";
+		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/MP4_Package/" + location + ".txt"));
+		Scanner scr = new Scanner(in);
+		while (scr.hasNextLine()) {
+			String tempText = scr.nextLine();
+			conversationText += tempText;
+			System.out.println(conversationText);
+		}
+		
+		System.out.println("Creating Conversation");
+		conversationFrame = new JFrame("You stop to talk");
+		conversationFrame.setBounds(800, 375, 450, 300);
+		conversationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		JLabel conversationLabel = new JLabel(conversationText);
+		conversationFrame.add(conversationLabel);
+		conversationFrame.pack();
+		conversationFrame.setVisible(true);
+	}
+	
+	public void createBakingDisplay() {
+		popUP.showMessageDialog(null, "Press the space bar on the green", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+		int greenStart = random.nextInt(30) + 50;
+		int greenSpace = random.nextInt(5) + 5;
+		int currentLocation = 0;
+		
+		System.out.println("Creating Baking Minigame");
+		bakingFrame = new JFrame("Bake");
+		bakingFrame.setBounds(800, 375, 100, 100);
+		bakingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		bakingFrame.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				int vk = e.getKeyCode();
+				if(vk == KeyEvent.VK_SPACE) {
+					System.out.println("Space Bar Pressed");
+					if(currentLocation >= greenStart && currentLocation <= greenStart + greenSpace) {
+						System.out.println("Bread Baked");
+					}
+					else {
+						System.out.println("Baking Unsuccessful");
+					}
+				}
+			}
+			public void keyReleased(KeyEvent e) {
+			}
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		JLabel redSpaceLabel = new JLabel("");
+		redSpaceLabel.setBounds(0, 0, 100, 50);
+		bakingFrame.add(redSpaceLabel);
+		JLabel greenSpaceLabel = new JLabel("");
+		greenSpaceLabel.setBounds(greenStart, 0, greenSpace, 50);
+		bakingFrame.add(greenSpaceLabel);
+		
+		bakingFrame.pack();
+		bakingFrame.setVisible(true);
 	}
 }
