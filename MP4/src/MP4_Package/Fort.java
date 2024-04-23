@@ -9,6 +9,7 @@ package MP4_Package;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DecimalFormat;
+import java.util.Random;
 
 import javax.swing.*;
 
@@ -40,6 +41,8 @@ public class Fort extends Landmark{
 	private JLabel wagonLabel;
 	private JLabel moneyLabel;
 	private JLabel oxenLabel;
+	
+	Random random = new Random();
 	
 	private int basicAmount = 0;
 	private int oxenAmount = 0;

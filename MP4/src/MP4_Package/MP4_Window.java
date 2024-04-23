@@ -412,7 +412,7 @@ public class MP4_Window {
 				JButton conversationButton = new JButton("Stop to Talk");
 				conversationButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						createConversationDisplay(landmarks.get(index).getName());
+						createConversationDisplay(landmarks.get(index - 1).getName());
 					}
 				});
 				stopPanel.add(conversationButton);
@@ -439,7 +439,7 @@ public class MP4_Window {
 			JButton conversationButton = new JButton("Stop to Talk");
 			conversationButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					createConversationDisplay(landmarks.get(index).getName());
+					createConversationDisplay(landmarks.get(index - 1).getName());
 				}
 			});
 			stopPanel.add(conversationButton);
@@ -1038,21 +1038,27 @@ public class MP4_Window {
 	
 	public void createConversationDisplay(String location) {
 		String conversationText = "";
-		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/MP4_Package/" + location + ".txt"));
-		Scanner scr = new Scanner(in);
-		while (scr.hasNextLine()) {
-			String tempText = scr.nextLine();
-			conversationText += tempText;
-			System.out.println(conversationText);
-		}
+		StringBuilder sb = new StringBuilder();
 		
 		System.out.println("Creating Conversation");
 		conversationFrame = new JFrame("You stop to talk");
-		conversationFrame.setBounds(800, 375, 450, 300);
+		conversationFrame.setBounds(800, 375, 300, 300);
 		conversationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
+		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/MP4_Package/Windlass_Hill_Mason.txt"));
+		Scanner scr = new Scanner(in);
+		conversationText += "<html>";
+		while (scr.hasNextLine()) {
+			String tempText = scr.nextLine();
+			conversationText += tempText + "<br>";
+		}
+		conversationText += "</html>";
+		System.out.println(conversationText);
+		
 		JLabel conversationLabel = new JLabel(conversationText);
+		
 		conversationFrame.add(conversationLabel);
+		
 		conversationFrame.pack();
 		conversationFrame.setVisible(true);
 	}
@@ -1097,5 +1103,10 @@ public class MP4_Window {
 		
 		bakingFrame.pack();
 		bakingFrame.setVisible(true);
+	}
+	
+	public void createWagonGUI() {
+		ImageIcon landmarkGraphic = new ImageIcon();
+		ImageIcon wagonGraphic = new ImageIcon();
 	}
 }
