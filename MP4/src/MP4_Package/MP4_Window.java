@@ -52,7 +52,13 @@ public class MP4_Window {
 	private JLabel dateLabel;
 	private JLabel foodLabel;
 	
+	Random random = new Random();
+	Wagon wagon = new Wagon();
+	Events events = new Events();
+	Trader trader = new Trader();
+	
 	private String currentMonth = "May";
+	private String nameSeed = "";
 	private int landmarkCount = 0;
 	private int currentDay = 10;
 	private int currentYear = 1854;
@@ -61,6 +67,7 @@ public class MP4_Window {
 	private int restDays = 1;
 	private int currentDistance = 0;
 	private int consumptionRate = 3; //YHDOD
+	private int conversationSeed = 0;
 	private boolean atLandmark = false;
 	private boolean atOregon = false;
 	private boolean atShop = false;
@@ -69,13 +76,10 @@ public class MP4_Window {
 	
 	private final int MISSOURIINDEX = 1;
 	private final int ELKHORNINDEX = 4;
+	private final int MAINX = 700;
+	private final int MAINY = 500;
 	
 	ArrayList<Landmark> landmarks = new ArrayList<Landmark>();
-	
-	Wagon wagon = new Wagon();
-	Events events = new Events();
-	Trader trader = new Trader();
-	Random random = new Random();
 
 	/**
 	 * Launch the application.
@@ -124,7 +128,7 @@ public class MP4_Window {
 		mainFrame = new JFrame("Main Game");
 		mainFrame.setBounds(100, 100, 450, 300);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setPreferredSize(new Dimension(700, 500));
+		mainFrame.setPreferredSize(new Dimension(MAINX, MAINY));
 
 		//Panel Setups
 		JPanel statsPanel = new JPanel(new GridLayout(7, 2));
@@ -132,10 +136,6 @@ public class MP4_Window {
 		imagePanel.setBackground(Color.blue);
 		//JPanel childImagePanel = new JPanel();
 		
-		//Image Panel Shenanigans
-//		JLabel grassLabel = new JLabel();
-//		grassLabel.setOpaque(true);
-//		grassLabel.setBackground(Color.green);
 		
 		//Stats Labels which are commonly interacted with
 		dateLabel = new JLabel("" + currentMonth + " " + currentDay + ", " + currentYear);
@@ -1038,14 +1038,24 @@ public class MP4_Window {
 	
 	public void createConversationDisplay(String location) {
 		String conversationText = "";
-		StringBuilder sb = new StringBuilder();
+		conversationSeed = random.nextInt(3) + 1;
+		
+		switch (conversationSeed) {
+			case 1: nameSeed = "Brian"; System.out.println("Brian Conversation"); break;
+			case 2: nameSeed = "Mason"; System.out.println("Mason Conversation"); break;
+			case 3: nameSeed = "Anthony"; System.out.println("Anthony Conversation"); break;
+		}
+		if(nameSeed.isEmpty()) {
+			System.out.println("Houston we have a problem");
+		}
 		
 		System.out.println("Creating Conversation");
 		conversationFrame = new JFrame("You stop to talk");
 		conversationFrame.setBounds(800, 375, 300, 300);
 		conversationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
-		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/MP4_Package/Windlass_Hill_Mason.txt"));
+		System.out.println("/Conversations_" + nameSeed + "/" + location + ".txt");
+		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/Conversations_" + nameSeed + "/" + location + ".txt"));
 		Scanner scr = new Scanner(in);
 		conversationText += "<html>";
 		while (scr.hasNextLine()) {
@@ -1064,7 +1074,7 @@ public class MP4_Window {
 	}
 	
 	public void createBakingDisplay() {
-		popUP.showMessageDialog(null, "Press the space bar on the green", "Trader Gaming", JOptionPane.PLAIN_MESSAGE);
+		popUP.showMessageDialog(null, "Press the space bar on the green", "Cooking Mama Gaming", JOptionPane.PLAIN_MESSAGE);
 		int greenStart = random.nextInt(30) + 50;
 		int greenSpace = random.nextInt(5) + 5;
 		int currentLocation = 0;
@@ -1106,7 +1116,11 @@ public class MP4_Window {
 	}
 	
 	public void createWagonGUI() {
-		ImageIcon landmarkGraphic = new ImageIcon();
-		ImageIcon wagonGraphic = new ImageIcon();
+		ImageIcon wagonGraphic = new ImageIcon("/Assets/Oregon_Trail_Wagon.png");
+		//ImageIcon landmarkGraphic = new ImageIcon();
+		
+		JLabel wagonGraphicLabel = new JLabel();
+		wagonGraphicLabel.setIcon(wagonGraphic);
+		mainFrame.add(wagonGraphicLabel);
 	}
 }
