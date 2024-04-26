@@ -1,8 +1,8 @@
 /*
  * File: MP4_Window.java
  * Author: Brian Bizon
- * Date: 4/9/2024
- * Version: 2.0.0 
+ * Date: 4/26/2024
+ * Version: 3.0.0 
  */
 
 package MP4_Package;
@@ -38,6 +38,8 @@ public class MP4_Window {
 	private JFrame conversationFrame;
 	private JFrame bakingFrame;
 	
+	private JLayeredPane imagePanel;
+	private JPanel wagonImagePanel;
 	private JPanel stopPanel;
 	private JPanel suppliesPanel;
 	private JPanel pacePanel;
@@ -45,17 +47,18 @@ public class MP4_Window {
 	private JPanel restPanel;
 	private JPanel riverPanel;
 	private JPanel tradePanel;
-	private JPanel conversationPanel;
 	
 	private JOptionPane popUP;
 	
 	private JLabel dateLabel;
 	private JLabel foodLabel;
+	private JLabel weatherLabel;
 	
 	Random random = new Random();
 	Wagon wagon = new Wagon();
 	Events events = new Events();
 	Trader trader = new Trader();
+	Weather weather = new Weather();
 	
 	private String currentMonth = "May";
 	private String nameSeed = "";
@@ -132,10 +135,11 @@ public class MP4_Window {
 
 		//Panel Setups
 		JPanel statsPanel = new JPanel(new GridLayout(7, 2));
-		JPanel imagePanel = new JPanel();
-		imagePanel.setBackground(Color.blue);
-		//JPanel childImagePanel = new JPanel();
 		
+		imagePanel = new JLayeredPane();
+		imagePanel.setPreferredSize(new Dimension(450, 300));
+		
+		createWagonGUI();
 		
 		//Stats Labels which are commonly interacted with
 		dateLabel = new JLabel("" + currentMonth + " " + currentDay + ", " + currentYear);
@@ -164,18 +168,25 @@ public class MP4_Window {
 				System.out.println("Travel Button Pressed");
 				atShop = false;
 				atTrade = false;
+				//Updates the amount of resources
 				calculateConsumptionAmount();
 				milesLabel.setText("" + calculateTravelDistance());
+				weatherLabel.setText("" + weather.pickRandomWeather());
+				//Check if the player has reached a landmark
 				if(atLandmark) {
 					landmarkCount++;
 					popUP = new JOptionPane();
 					popUP.showMessageDialog(null, "You have reached a landmark", "Nice", JOptionPane.PLAIN_MESSAGE);
-					//3 is the river in the CSV file
+					//Check if the landmark is a river or not
 					if(landmarkCount == MISSOURIINDEX || landmarkCount == ELKHORNINDEX) {
 						createRiverDisplay();
 					}
+					//Update the miles and next landmark labels to the next values in the CSV
 					milesLabel.setText("" + landmarks.get(index).getDistance());
 					landmarkLabel.setText(landmarks.get(index).getName());
+					//Checks for a game win
+					//Will repeat the last leg of the trip
+					//Some form of game end screen will be implemented later
 					if(atOregon) {
 						popUP = new JOptionPane();
 						popUP.showMessageDialog(null, "You have reached Oregon, please exit", "Congratulations", JOptionPane.PLAIN_MESSAGE);
@@ -201,11 +212,12 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Stats Button Pressed");
+				//GUI Setup
 				stopFrame = new JFrame("You have stopped");
 				stopFrame.setBounds(800, 100, 450, 300);
 				stopFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				createStopDisplay(atShop, atTrade);
-				stopFrame.add(stopPanel);
+				stopFrame.getContentPane().add(stopPanel);
 //				mainFrame.setEnabled(false);
 				stopFrame.pack();
 				stopFrame.setVisible(true);
@@ -224,7 +236,7 @@ public class MP4_Window {
 		weatherTextLabel.setHorizontalAlignment(SwingConstants.TRAILING);
 		statsPanel.add(weatherTextLabel);
 		
-		JLabel weatherLabel = new JLabel("Sunny (Placeholder)");
+		weatherLabel = new JLabel("" + weather.pickRandomWeather());
 		weatherLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		statsPanel.add(weatherLabel);
 		
@@ -384,6 +396,7 @@ public class MP4_Window {
 			public void actionPerformed(ActionEvent e) {
 					popUP = new JOptionPane();
 					popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+					//createBakingDisplay();
 				}
 			});
 		stopPanel.add(huntButton);
@@ -558,7 +571,7 @@ public class MP4_Window {
 			});
 		suppliesPanel.add(stopCloseButton);
 		
-		suppliesFrame.add(suppliesPanel);
+		suppliesFrame.getContentPane().add(suppliesPanel);
 		suppliesFrame.pack();
 		suppliesFrame.setVisible(true);
 		stopFrame.setEnabled(false);
@@ -633,7 +646,7 @@ public class MP4_Window {
 			});
 		pacePanel.add(greulingButton);
 		
-		paceFrame.add(pacePanel);
+		paceFrame.getContentPane().add(pacePanel);
 		paceFrame.pack();
 		paceFrame.setVisible(true);
 	}
@@ -772,7 +785,7 @@ public class MP4_Window {
 			});
 		consumptionPanel.add(bareButton);
 		
-		consumptionFrame.add(consumptionPanel);
+		consumptionFrame.getContentPane().add(consumptionPanel);
 		consumptionFrame.pack();
 		consumptionFrame.setVisible(true);
 	}
@@ -854,7 +867,7 @@ public class MP4_Window {
 			});
 		restPanel.add(calculateRestButton);
 		
-		restFrame.add(restPanel);
+		restFrame.getContentPane().add(restPanel);
 		restFrame.pack();
 		restFrame.setVisible(true);
 	}
@@ -871,16 +884,24 @@ public class MP4_Window {
 		wagon.setWaterAmount(wagon.getWaterAmount() - CharacterClass.getAmountOfPeople());
 		foodLabel.setText("" + wagon.getFoodWeight());
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 *
+	 * Give the player options for how to cross the river 
+	 */
 	public void createRiverDisplay() {
+		//GUI Setup
 		mainFrame.setEnabled(false);
 		System.out.println("Creating River");
-		riverFrame = new JFrame("Shopping");
+		riverFrame = new JFrame("River Crossing");
 		riverFrame.setBounds(800, 375, 450, 300);
 		riverFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		riverPanel = new JPanel(new GridLayout(4, 1));
 		
+		//Generate the flow, depth, and height
+		//Turn the data into display ready info
 		String flowWord = "";
 		
 		int riverFlow = events.getRiverFlow();
@@ -901,10 +922,14 @@ public class MP4_Window {
 					mainFrame.setEnabled(true);
 					System.out.println("Fording the River...");
 					riverFrame.dispatchEvent(new WindowEvent(riverFrame, WindowEvent.WINDOW_CLOSING));
+					//Check if the player is successful based off of RNG 
+					//Success
 					if(events.riverFord(riverDepth)){
 						popUP.showMessageDialog(null, "Successful River Crossing", "River Gaming", JOptionPane.PLAIN_MESSAGE);
 						System.out.println("Successful");
 					}
+					//Fail
+					//Item loss will be randomized at a later time
 					else{
 						popUP.showMessageDialog(null, "Unsuccessful River Crossing", "River Gaming", JOptionPane.ERROR_MESSAGE);
 						wagon.wagonWheelAmount -= 2;
@@ -919,10 +944,14 @@ public class MP4_Window {
 		floatButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 					mainFrame.setEnabled(true);
+					//Check if the player is successful based off of RNG 
+					//Success
 					if(events.riverFloat(riverDepth)){
 						popUP.showMessageDialog(null, "Successful River Crossing", "River Gaming", JOptionPane.PLAIN_MESSAGE);
 						System.out.println("Successful");
 					}
+					//Fail
+					//Item loss will be randomized at a later time
 					else{
 						popUP.showMessageDialog(null, "Unsuccessful River Crossing", "River Gaming", JOptionPane.ERROR_MESSAGE);
 						wagon.wagonWheelAmount -= 2;
@@ -937,11 +966,15 @@ public class MP4_Window {
 		ferryButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 					mainFrame.setEnabled(true);
+					//Check if the player is successful based off of RNG 
+					//Success
 					if(events.riverFerry()){
 						popUP.showMessageDialog(null, "Successful River Crossing", "River Gaming", JOptionPane.PLAIN_MESSAGE);
 						System.out.println("Successful");
 						wagon.moneyAmount -= 5;
 					}
+					//Fail
+					//Item loss will be randomized at a later time
 					else{
 						popUP.showMessageDialog(null, "Unsuccessful River Crossing", "River Gaming", JOptionPane.ERROR_MESSAGE);
 						wagon.wagonWheelAmount -= 2;
@@ -952,28 +985,40 @@ public class MP4_Window {
 			});
 		riverPanel.add(ferryButton);
 		
-		riverFrame.add(riverPanel);
+//		GUI
+		riverFrame.getContentPane().add(riverPanel);
 		riverFrame.pack();
 		riverFrame.setVisible(true);
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 * 
+	 * Generates a trade at random on button press
+	 */
 	public void createTradeDisplay() {
 		System.out.println("Creating Trade");
+		//GUI setup
 		tradeFrame = new JFrame("Trading");
 		tradeFrame.setBounds(800, 375, 450, 300);
 		tradeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		tradePanel = new JPanel(new GridLayout(1, 3));
 		
+		//Generate the trade
 		trader.initializeTrade();
 		
+		//Display what the trader wants
 		JLabel tradeLabel = new JLabel("A trader offers " + trader.getTraderQuantity() + " " + trader.getTraderItem() + ", they want " + trader.getComputerQuantity() + " " + trader.getComputerItem());
 		
+		//When trade is accepted
 		JButton acceptTrade = new JButton("DEAL");
 		acceptTrade.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int currentComputerItemAmount = 0;
 				System.out.println("Trade accepted");
+				//Get the current amount of the desired item in the users inventory
+				//Will be used as a check later
 				switch(trader.getComputerItem()) {
 					case "Oxen": currentComputerItemAmount = wagon.getOxenAmount(); break;
 					case "Yoke": currentComputerItemAmount = wagon.getYokeAmount(); break;
@@ -985,7 +1030,10 @@ public class MP4_Window {
 					case "Starter": currentComputerItemAmount = wagon.getStarterAmount(); break;
 					case "Clothing": currentComputerItemAmount = wagon.getClothingAmount(); break;
 				}
+				//Later is now, check if the user has enough
 				if(currentComputerItemAmount > trader.getTraderQuantity()) {
+					//If yes perform an exchange for the trader's items and the users
+					//Adding the items from the trader
 					switch(trader.getTraderItem()) {
 						case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() + trader.getTraderQuantity()); break;
 						case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() + trader.getTraderQuantity()); break;
@@ -997,6 +1045,7 @@ public class MP4_Window {
 						case "Starter": wagon.setStarterAmount(wagon.getStarterAmount() + trader.getTraderQuantity()); break;
 						case "Clothing": wagon.setClothingAmount(wagon.getClothingAmount() + trader.getTraderQuantity()); break;
 					}
+					//Taking the items from the player
 					switch(trader.getComputerItem()) {
 						case "Oxen": wagon.setOxenAmount(wagon.getOxenAmount() - trader.getComputerQuantity()); break;
 						case "Yoke": wagon.setYokeAmount(wagon.getYokeAmount() - trader.getComputerQuantity()); break;
@@ -1019,6 +1068,7 @@ public class MP4_Window {
 			}
 		});
 		
+		//When trade is denied, do nothing
 		JButton denyTrade = new JButton("NO DEAL");
 		denyTrade.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1028,18 +1078,27 @@ public class MP4_Window {
 			}
 		});
 		
+		//GUI
 		tradePanel.add(acceptTrade);
 		tradePanel.add(tradeLabel);
 		tradePanel.add(denyTrade);
-		tradeFrame.add(tradePanel);
+		tradeFrame.getContentPane().add(tradePanel);
 		tradeFrame.pack();
 		tradeFrame.setVisible(true);
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 *
+	 * @param location  the location. 
+	 * 
+	 * Randomizes the author then uses the location to get the conversation
+	 */
 	public void createConversationDisplay(String location) {
 		String conversationText = "";
 		conversationSeed = random.nextInt(3) + 1;
 		
+		//Author selection
 		switch (conversationSeed) {
 			case 1: nameSeed = "Brian"; System.out.println("Brian Conversation"); break;
 			case 2: nameSeed = "Mason"; System.out.println("Mason Conversation"); break;
@@ -1054,25 +1113,29 @@ public class MP4_Window {
 		conversationFrame.setBounds(800, 375, 300, 300);
 		conversationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
+		//Get the conversation txt file
 		System.out.println("/Conversations_" + nameSeed + "/" + location + ".txt");
 		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/Conversations_" + nameSeed + "/" + location + ".txt"));
 		Scanner scr = new Scanner(in);
+		//Formatting is a pain but here it is
+		//HTML was the easiest way to do this
 		conversationText += "<html>";
 		while (scr.hasNextLine()) {
 			String tempText = scr.nextLine();
 			conversationText += tempText + "<br>";
 		}
 		conversationText += "</html>";
-		System.out.println(conversationText);
 		
+		//Make a label and add the conversation from above to it
 		JLabel conversationLabel = new JLabel(conversationText);
-		
-		conversationFrame.add(conversationLabel);
+		conversationFrame.getContentPane().add(conversationLabel);
 		
 		conversationFrame.pack();
 		conversationFrame.setVisible(true);
 	}
 	
+	//Not yet implemented, please ignore for the time being
+	//Will eventually become a baking QTE like Cooking Mama
 	public void createBakingDisplay() {
 		popUP.showMessageDialog(null, "Press the space bar on the green", "Cooking Mama Gaming", JOptionPane.PLAIN_MESSAGE);
 		int greenStart = random.nextInt(30) + 50;
@@ -1106,21 +1169,49 @@ public class MP4_Window {
 		});
 		JLabel redSpaceLabel = new JLabel("");
 		redSpaceLabel.setBounds(0, 0, 100, 50);
-		bakingFrame.add(redSpaceLabel);
+		bakingFrame.getContentPane().add(redSpaceLabel);
 		JLabel greenSpaceLabel = new JLabel("");
 		greenSpaceLabel.setBounds(greenStart, 0, greenSpace, 50);
-		bakingFrame.add(greenSpaceLabel);
+		bakingFrame.getContentPane().add(greenSpaceLabel);
 		
 		bakingFrame.pack();
 		bakingFrame.setVisible(true);
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 *
+	 *	Creates the graphics seen in the main frame
+	 */
 	public void createWagonGUI() {
-		ImageIcon wagonGraphic = new ImageIcon("/Assets/Oregon_Trail_Wagon.png");
-		//ImageIcon landmarkGraphic = new ImageIcon();
+		ImageIcon backgroundGraphic = new ImageIcon(this.getClass().getResource("/Assets/Bliss_(Windows_XP).png"));
+		Image backImg = backgroundGraphic.getImage().getScaledInstance(750, 350, Image.SCALE_SMOOTH);
+		
+		//Puts an inconspicuous background image for the wagon to travel on
+		JPanel backgroundPanel = new JPanel();
+		backgroundPanel.setBounds(0, 0, 750, 350);
+		JLabel backgroundLabel = new JLabel();
+		backgroundLabel.setIcon(new ImageIcon(backImg));
+		backgroundPanel.add(backgroundLabel);
+		imagePanel.add(backgroundPanel, 0, 0);
+		
+		//Puts a wagon graphic in a panel then puts the panel in the layered frame
+		System.out.println("Creating Wagon Graphic");
+		wagonImagePanel = new JPanel();
+		wagonImagePanel.setOpaque(false);
+		wagonImagePanel.setBounds(200, 200, 254, 94);
+		wagonImagePanel.setLocation(450, 200);
 		
 		JLabel wagonGraphicLabel = new JLabel();
-		wagonGraphicLabel.setIcon(wagonGraphic);
-		mainFrame.add(wagonGraphicLabel);
+		wagonGraphicLabel.setBounds(0, 0, 127, 47);
+		
+		//Scale the wagon to a usable size
+		ImageIcon wagonGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
+		Image newImg = wagonGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
+		wagonGraphicLabel.setIcon(new ImageIcon(newImg));
+		//ImageIcon landmarkGraphic = new ImageIcon();
+		
+		wagonImagePanel.add(wagonGraphicLabel);
+		imagePanel.add(wagonImagePanel, 1, 0);
 	}
 }
