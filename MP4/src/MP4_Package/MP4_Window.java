@@ -39,6 +39,7 @@ public class MP4_Window {
 	private JFrame bakingFrame;
 	
 	private JLayeredPane imagePanel;
+	private JPanel landmarkImagePanel;
 	private JPanel wagonImagePanel;
 	private JPanel stopPanel;
 	private JPanel suppliesPanel;
@@ -1209,9 +1210,27 @@ public class MP4_Window {
 		ImageIcon wagonGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
 		Image newImg = wagonGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
 		wagonGraphicLabel.setIcon(new ImageIcon(newImg));
-		//ImageIcon landmarkGraphic = new ImageIcon();
 		
 		wagonImagePanel.add(wagonGraphicLabel);
 		imagePanel.add(wagonImagePanel, 1, 0);
+		
+		//Puts a landmark graphic in a panel then puts the panel in the layered frame
+		System.out.println("Creating Landmark Graphic");
+		landmarkImagePanel = new JPanel();
+		landmarkImagePanel.setOpaque(false);
+		landmarkImagePanel.setBounds(200, 200, 254, 94);
+		landmarkImagePanel.setLocation(250, 200);
+		
+		JLabel landmarkGraphicLabel = new JLabel();
+		landmarkGraphicLabel.setBounds(0, 0, 127, 47);
+		
+		//Scale the wagon to a usable size
+		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
+		Image newImgL = wagonGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
+		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
+		//ImageIcon landmarkGraphic = new ImageIcon();
+		
+		landmarkImagePanel.add(landmarkGraphicLabel);
+		imagePanel.add(landmarkImagePanel, 1, 0);
 	}
 }
