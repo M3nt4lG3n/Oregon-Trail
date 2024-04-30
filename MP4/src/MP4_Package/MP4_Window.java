@@ -81,7 +81,10 @@ public class MP4_Window {
 	private boolean tradeCompleted = false;
 	
 	private final int MISSOURIINDEX = 1;
-	private final int ELKHORNINDEX = 4;
+	private final int ELKHORNINDEX = 3;
+	private final int PLATTEINDEX = 4;
+	private final int GREENINDEX = 8;
+	private final int BEARINDEX = 9;
 	private final int MAINX = 700;
 	private final int MAINY = 500;
 	
@@ -183,7 +186,7 @@ public class MP4_Window {
 					popUP = new JOptionPane();
 					popUP.showMessageDialog(null, "You have reached a landmark", "Nice", JOptionPane.PLAIN_MESSAGE);
 					//Check if the landmark is a river or not
-					if(landmarkCount == MISSOURIINDEX || landmarkCount == ELKHORNINDEX) {
+					if(landmarkCount == MISSOURIINDEX || landmarkCount == ELKHORNINDEX || landmarkCount == PLATTEINDEX || landmarkCount == GREENINDEX || landmarkCount == BEARINDEX) {
 						createRiverDisplay();
 					}
 					//Update the miles and next landmark labels to the next values in the CSV
@@ -200,7 +203,6 @@ public class MP4_Window {
 				atLandmark = false;
 				calculateTravelDate(1);
 				tradeCompleted = false;
-				wagon.updateInventory(0, 0);
 			}
 		});
 		statsPanel.add(travelButton);
@@ -887,6 +889,9 @@ public class MP4_Window {
 		//Food Consumption Rates based off of YHDOD
 		wagon.setFoodWeight((wagon.getFoodWeight() - (CharacterClass.getAmountOfPeople() * consumptionRate)));
 		wagon.setWaterAmount(wagon.getWaterAmount() - CharacterClass.getAmountOfPeople());
+		if(wagon.foodWeight < 0) {
+			wagon.foodWeight = 0;
+		}
 		foodLabel.setText("" + wagon.getFoodWeight());
 	}
 	/** 
@@ -949,6 +954,8 @@ public class MP4_Window {
 		floatButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 					mainFrame.setEnabled(true);
+					System.out.println("Floating the River...");
+					riverFrame.dispatchEvent(new WindowEvent(riverFrame, WindowEvent.WINDOW_CLOSING));
 					//Check if the player is successful based off of RNG 
 					//Success
 					if(events.riverFloat(riverDepth)){
@@ -971,6 +978,8 @@ public class MP4_Window {
 		ferryButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 					mainFrame.setEnabled(true);
+					System.out.println("Ferrying the River...");
+					riverFrame.dispatchEvent(new WindowEvent(riverFrame, WindowEvent.WINDOW_CLOSING));
 					//Check if the player is successful based off of RNG 
 					//Success
 					if(events.riverFerry()){
@@ -982,6 +991,7 @@ public class MP4_Window {
 					//Item loss will be randomized at a later time
 					else{
 						popUP.showMessageDialog(null, "Unsuccessful River Crossing", "River Gaming", JOptionPane.ERROR_MESSAGE);
+						wagon.moneyAmount -= 5;
 						wagon.wagonWheelAmount -= 2;
 						wagon.wagonAxelAmount -= 2;
 						wagon.wagonTongueAmount -= 2;
@@ -1223,7 +1233,7 @@ public class MP4_Window {
 		landmarkImagePanel = new JPanel();
 		landmarkImagePanel.setOpaque(false);
 		landmarkImagePanel.setBounds(200, 200, 254, 94);
-		landmarkImagePanel.setLocation(mainFrame.getX() + landmarks.get(index).getDistance() / 10, 200);
+		landmarkImagePanel.setLocation(300 - landmarks.get(index).getDistance(), 200);
 		
 		landmarkGraphicLabel = new JLabel();
 		landmarkGraphicLabel.setBounds(0, 0, 127, 47);
@@ -1238,13 +1248,11 @@ public class MP4_Window {
 	}
 	
 	public void resetWagonGUI() {
-		landmarkImagePanel.setLocation(mainFrame.getX() - landmarks.get(index).getDistance(), 200);
+		landmarkImagePanel.setLocation(300 - landmarks.get(index).getDistance(), 200);
 		
-		//Scale the wagon to a usable size
 		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
 		Image newImgL = landmarkGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
 		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
-		landmarkImagePanel.setLocation(mainFrame.getX() + landmarks.get(index).getDistance() / 10, 200);
 		
 		currentWagonLocation = 450;
 		wagonImagePanel.setLocation(currentWagonLocation, 200);
