@@ -54,6 +54,7 @@ public class MP4_Window {
 	private JLabel dateLabel;
 	private JLabel foodLabel;
 	private JLabel weatherLabel;
+	private JLabel landmarkGraphicLabel;
 	
 	Random random = new Random();
 	Wagon wagon = new Wagon();
@@ -72,6 +73,7 @@ public class MP4_Window {
 	private int currentDistance = 0;
 	private int consumptionRate = 3; //YHDOD
 	private int conversationSeed = 0;
+	private int currentWagonLocation = 450;
 	private boolean atLandmark = false;
 	private boolean atOregon = false;
 	private boolean atShop = false;
@@ -167,6 +169,7 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Travel Button Pressed");
+				moveWagonGUI();
 				atShop = false;
 				atTrade = false;
 				//Updates the amount of resources
@@ -176,6 +179,7 @@ public class MP4_Window {
 				//Check if the player has reached a landmark
 				if(atLandmark) {
 					landmarkCount++;
+					resetWagonGUI();
 					popUP = new JOptionPane();
 					popUP.showMessageDialog(null, "You have reached a landmark", "Nice", JOptionPane.PLAIN_MESSAGE);
 					//Check if the landmark is a river or not
@@ -395,9 +399,9 @@ public class MP4_Window {
 			 * Not Implemented, will eventually have the player perform a quick time whack a mole mini-game for gathering berries
 			 */
 			public void actionPerformed(ActionEvent e) {
-					popUP = new JOptionPane();
-					popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
-					//createBakingDisplay();
+//					popUP = new JOptionPane();
+//					popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+					createBakingDisplay();
 				}
 			});
 		stopPanel.add(huntButton);
@@ -1219,18 +1223,35 @@ public class MP4_Window {
 		landmarkImagePanel = new JPanel();
 		landmarkImagePanel.setOpaque(false);
 		landmarkImagePanel.setBounds(200, 200, 254, 94);
-		landmarkImagePanel.setLocation(250, 200);
+		landmarkImagePanel.setLocation(mainFrame.getX() + landmarks.get(index).getDistance() / 10, 200);
 		
-		JLabel landmarkGraphicLabel = new JLabel();
+		landmarkGraphicLabel = new JLabel();
 		landmarkGraphicLabel.setBounds(0, 0, 127, 47);
 		
 		//Scale the wagon to a usable size
-		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
-		Image newImgL = wagonGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
+		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Fort_Temporary.png"));
+		Image newImgL = landmarkGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
 		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
-		//ImageIcon landmarkGraphic = new ImageIcon();
 		
 		landmarkImagePanel.add(landmarkGraphicLabel);
 		imagePanel.add(landmarkImagePanel, 1, 0);
+	}
+	
+	public void resetWagonGUI() {
+		landmarkImagePanel.setLocation(mainFrame.getX() - landmarks.get(index).getDistance(), 200);
+		
+		//Scale the wagon to a usable size
+		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
+		Image newImgL = landmarkGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
+		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
+		landmarkImagePanel.setLocation(mainFrame.getX() + landmarks.get(index).getDistance() / 10, 200);
+		
+		currentWagonLocation = 450;
+		wagonImagePanel.setLocation(currentWagonLocation, 200);
+	}
+	
+	public void moveWagonGUI() {
+		currentWagonLocation -= travelRate;
+		wagonImagePanel.setLocation(currentWagonLocation, 200);
 	}
 }
