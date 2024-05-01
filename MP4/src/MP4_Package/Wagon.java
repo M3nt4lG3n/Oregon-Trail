@@ -291,5 +291,15 @@ public class Wagon {
 				setFoodWeight((int) (getFoodWeight()*.75));
 			}
 		}
+		if(randomEvent.getFire()==true) {
+				setYokeAmount((int) (getYokeAmount()*.5));
+				setOxenAmount((int) (getOxenAmount()*.5));
+				setTongueAmount((int) (getTongueAmount()*.5));
+				setAxelAmount((int) (getAxelAmount()*.5));
+				setWheelAmount((int) (getWheelAmount()*.5));
+				setClothingAmount((int) (getClothingAmount()*.5));
+				setWaterAmount((int) (getWaterAmount()*.5));
+				setFoodWeight((int) (getFoodWeight()*.5));
+			}
+		}
     }
-}
