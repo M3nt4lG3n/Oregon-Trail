@@ -9,6 +9,7 @@ package MP4_Package;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Random;
 
 /**
 * The class Character class
@@ -19,6 +20,7 @@ public class CharacterClass {
 	boolean charAlive;
 	int charHealth;
 	boolean charSick;
+	private int consumptionRate=3;
 	public static int numberOfPeople = 4;
 	static ArrayList<CharacterClass> characters = new ArrayList<CharacterClass>();
 
@@ -44,7 +46,7 @@ public class CharacterClass {
 	 *
 	 * @return boolean charAlive
 	 */
-	public boolean isALive() {
+	public boolean isAlive() {
 		return charAlive;
 	}
 
@@ -80,7 +82,7 @@ public class CharacterClass {
 
 	/** 
 	 *
-	 * Set Character Alive Satus
+	 * Set Character Alive Status
 	 *
 	 */
 	public void setAlive(boolean isAlive) {
@@ -122,7 +124,7 @@ public class CharacterClass {
 	 */
 	public static int getAmountOfPeople() {
 		for(int i = 0; i < characters.size(); i++) {
-			if (characters.get(i).isALive()) {
+			if (characters.get(i).isAlive()) {
 				numberOfPeople++;
 			}
 		}
@@ -158,5 +160,56 @@ public class CharacterClass {
 			reader.close();
 		}
 		System.out.println(characters);
+	}
+	public void charDeath(int health) {
+		if(health<=0) {
+			setAlive(false);
+		}
+	}
+	public void cureSickness() {
+		
+		Random rand = new Random();
+		int chance = rand.nextInt(5)+1;
+		if(isSick()==true) {
+			if(chance==1) {
+				setSick(false);
+			}
+		}
+	}
+	
+	public int healthChange(int health) {
+		if(isSick()==true) {
+			health--;
+		}
+		if(consumptionRate==3) {
+			health++;
+		}
+		if(consumptionRate==1) {
+			health--;
+		}
+		return health;
+	}
+	
+	public void randomHealthEvents() {
+		RandomEvent randomEvent = new RandomEvent();
+		if(randomEvent.getSickness()==true) {
+			setSick(true);
+		}
+		if(randomEvent.getSnakeBite()==true) {
+			charHealth=charHealth-3;
+		}
+		if(randomEvent.getBrokenLimb()==true) {
+			charHealth=charHealth-3;
+		}
+	}
+	public void runCharClass() {
+		Random rand = new Random();
+		int num = rand.nextInt(getAmountOfPeople());
+		characters.get(num).randomHealthEvents();
+		for(int i=0;i<getAmountOfPeople();i++) {
+			characters.get(i).healthChange(characters.get(i).returnHealth());
+			characters.get(i).cureSickness();
+			characters.get(i).charDeath(characters.get(i).returnHealth());
+		}
 	}
 }

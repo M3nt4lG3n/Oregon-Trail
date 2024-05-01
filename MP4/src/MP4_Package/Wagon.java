@@ -8,6 +8,7 @@
 package MP4_Package;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Wagon { 
 	//Initialized as arbitrary values
@@ -259,5 +260,36 @@ public class Wagon {
         System.out.println("Inventory Updated");
     	foodWeight -= foodUsed;
         waterAmount -= waterUsed;
+    }
+    public void randomEventUpdate() {
+    	Random rand = new Random();
+		int num = rand.nextInt(8);
+    	RandomEvent randomEvent = new RandomEvent();
+		if(randomEvent.getRaid()==true) {
+			if(num==0) {
+				setYokeAmount((int) (getYokeAmount()*.75));
+			}
+			else if(num==1) {
+				setOxenAmount((int) (getOxenAmount()*.75));
+			}
+			else if(num==2) {
+				setTongueAmount((int) (getTongueAmount()*.75));
+			}
+			else if(num==3) {
+				setAxelAmount((int) (getAxelAmount()*.75));
+			}
+			else if(num==4) {
+				setWheelAmount((int) (getWheelAmount()*.75));
+			}
+			else if(num==5) {
+				setClothingAmount((int) (getClothingAmount()*.75));
+			}
+			else if(num==6) {
+				setWaterAmount((int) (getWaterAmount()*.75));
+			}
+			else if(num==7) {
+				setFoodWeight((int) (getFoodWeight()*.75));
+			}
+		}
     }
 }
