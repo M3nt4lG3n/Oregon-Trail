@@ -36,7 +36,6 @@ public class MP4_Window {
 	private JFrame riverFrame;
 	private JFrame tradeFrame;
 	private JFrame conversationFrame;
-	private JFrame bakingFrame;
 	
 	private JLayeredPane imagePanel;
 	private JPanel landmarkImagePanel;
@@ -52,7 +51,7 @@ public class MP4_Window {
 	private JOptionPane popUP;
 	
 	private JLabel dateLabel;
-	private JLabel foodLabel;
+	JLabel foodLabel;
 	private JLabel weatherLabel;
 	private JLabel landmarkGraphicLabel;
 	
@@ -295,6 +294,7 @@ public class MP4_Window {
 		mainFrame.setEnabled(false);
 		stopPanel = new JPanel(new GridLayout(9, 1));
 		JButton proceedButton = new JButton("Proceed on the trail");
+		proceedButton.setBackground(Color.RED);
 		proceedButton.addActionListener(new ActionListener() {
 			/** 
 			 *
@@ -401,9 +401,7 @@ public class MP4_Window {
 			 * Not Implemented, will eventually have the player perform a quick time whack a mole mini-game for gathering berries
 			 */
 			public void actionPerformed(ActionEvent e) {
-//					popUP = new JOptionPane();
-//					popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
-					createBakingDisplay();
+					wagon.createBakingDisplay();
 				}
 			});
 		stopPanel.add(huntButton);
@@ -572,7 +570,7 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Closing Supplies Menu");
-					suppliesFrame.dispatchEvent(new WindowEvent(stopFrame, WindowEvent.WINDOW_CLOSING));
+					suppliesFrame.dispatchEvent(new WindowEvent(suppliesFrame, WindowEvent.WINDOW_CLOSING));
 					stopFrame.setEnabled(true);
 				}
 			});
@@ -707,7 +705,6 @@ public class MP4_Window {
 		while(scr.hasNext()) {
 			System.out.println("Reading in");
 			Scanner reader = new Scanner(scr.next());
-			//scr.nextLine();
 			reader.useDelimiter(",");
 			String name = reader.next();
 			String tempDistance = reader.next();
@@ -1147,50 +1144,6 @@ public class MP4_Window {
 		
 		conversationFrame.pack();
 		conversationFrame.setVisible(true);
-	}
-	
-	//Not yet implemented, please ignore for the time being
-	//Will eventually become a baking QTE like Cooking Mama
-	public void createBakingDisplay() {
-		popUP.showMessageDialog(null, "Press the space bar on the green", "Cooking Mama Gaming", JOptionPane.PLAIN_MESSAGE);
-		int greenStart = random.nextInt(30) + 50;
-		int greenSpace = random.nextInt(5) + 5;
-		int currentLocation = 0;
-		
-		System.out.println("Creating Baking Minigame");
-		bakingFrame = new JFrame("Bake");
-		bakingFrame.setBounds(800, 375, 100, 100);
-		bakingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		bakingFrame.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				int vk = e.getKeyCode();
-				if(vk == KeyEvent.VK_SPACE) {
-					System.out.println("Space Bar Pressed");
-					if(currentLocation >= greenStart && currentLocation <= greenStart + greenSpace) {
-						System.out.println("Bread Baked");
-					}
-					else {
-						System.out.println("Baking Unsuccessful");
-					}
-				}
-			}
-			public void keyReleased(KeyEvent e) {
-			}
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		JLabel redSpaceLabel = new JLabel("");
-		redSpaceLabel.setBounds(0, 0, 100, 50);
-		bakingFrame.getContentPane().add(redSpaceLabel);
-		JLabel greenSpaceLabel = new JLabel("");
-		greenSpaceLabel.setBounds(greenStart, 0, greenSpace, 50);
-		bakingFrame.getContentPane().add(greenSpaceLabel);
-		
-		bakingFrame.pack();
-		bakingFrame.setVisible(true);
 	}
 	/** 
 	 *

@@ -7,8 +7,20 @@
 
 package MP4_Package;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class Wagon { 
 	//Initialized as arbitrary values
@@ -24,6 +36,22 @@ public class Wagon {
 	int wagonTongueAmount = 2;
 	int oxenAmount = 4;
 	int oxenYokeAmount = 2;
+	
+	//Cooking Variables
+	private JFrame bakingFrame;
+	private JLayeredPane cookingPane;
+	private JPanel selectionPanel;
+	
+	Random random = new Random();
+	//Wagon wagon = new Wagon();
+	
+	private JOptionPane popUP;
+	
+	private int greenStart;
+	private int greenSpace;
+	private int currentLocation;
+	
+	private Timer clock;
 
 	/** 
 	 *
@@ -302,4 +330,87 @@ public class Wagon {
 				setFoodWeight((int) (getFoodWeight()*.5));
 			}
 		}
-    }
+    public void createBakingDisplay() {
+		setStarterAmount(getStarterAmount() - 5);
+		setFlourAmount(getFlourAmount() - 5);
+		setWaterAmount(getWaterAmount() - 5);
+		
+		popUP.showMessageDialog(null, "Press the space bar on the green", "Cooking Mama Gaming", JOptionPane.PLAIN_MESSAGE);
+		cookingPane = new JLayeredPane();
+		cookingPane.setPreferredSize(new Dimension(600, 50));
+		greenStart = random.nextInt(450) + 50;
+		greenSpace = random.nextInt(200) + 5;
+		currentLocation = 0;
+		
+		System.out.println("Creating Baking Minigame");
+		bakingFrame = new JFrame("Bake");
+		bakingFrame.setBounds(800, 375, 600, 50);
+		bakingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		bakingFrame.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				int vk = e.getKeyCode();
+				onSpacePress(vk);
+			}
+			public void keyReleased(KeyEvent e) {
+			}
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		JPanel redSpacePanel = new JPanel();
+		redSpacePanel.setBounds(0, 0, 600, 50);
+		redSpacePanel.setBackground(Color.RED);
+		redSpacePanel.setVisible(true);
+		cookingPane.add(redSpacePanel, 0, 0);
+		
+		JPanel greenSpacePanel = new JPanel();
+		greenSpacePanel.setBounds(greenStart, 0, greenSpace, 50);
+		greenSpacePanel.setBackground(Color.GREEN);
+		greenSpacePanel.setVisible(true);
+		cookingPane.add(greenSpacePanel, 1, 0);
+		
+		selectionPanel = new JPanel();
+		selectionPanel.setBounds(0, 0, 10, 50);
+		selectionPanel.setBackground(Color.BLACK);
+		redSpacePanel.setVisible(true);
+		cookingPane.add(selectionPanel, 2, 0);
+		
+		bakingFrame.add(cookingPane);
+		bakingFrame.pack();
+		bakingFrame.setVisible(true);
+		
+		moveSelectionBar();
+	}
+	
+	public void onSpacePress(int vk) {
+		clock.stop();
+		if(vk == KeyEvent.VK_SPACE) {
+			System.out.println("Space Bar Pressed");
+			if(currentLocation >= greenStart && currentLocation <= greenStart + greenSpace) {
+				setFoodWeight(getFoodWeight() + 45);
+				System.out.println(getFoodWeight());
+				//main.foodLabel.setText("" + wagon.getFoodWeight());
+				popUP.showMessageDialog(null, "You baked 45 food", "Cooking Mama Gaming", JOptionPane.PLAIN_MESSAGE);
+				System.out.println("Bread Baked");
+			}
+			else {
+				popUP.showMessageDialog(null, "You failed, no food rewarded", "Cooking Mama Gaming", JOptionPane.ERROR_MESSAGE);
+				System.out.println("Baking Unsuccessful");
+			}
+		}
+		bakingFrame.dispose();
+	}
+	
+	public void moveSelectionBar() {
+		clock = new javax.swing.Timer(10, new ActionListener() {
+		public void actionPerformed(ActionEvent evt) {
+				selectionPanel.setLocation(selectionPanel.getX() + 5, selectionPanel.getY());
+				currentLocation = selectionPanel.getX();
+			}
+		});
+		clock.start();
+	}
+}
