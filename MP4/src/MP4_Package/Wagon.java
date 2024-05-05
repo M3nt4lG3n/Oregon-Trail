@@ -1,8 +1,8 @@
 /*
  * File: Wagon.java
- * Author: Mason Greenawalt
- * Date: 4/9/2024
- * Version: 2.0.0 
+ * Authors: Mason Greenawalt and Brian Bizon(Baking Stuff)
+ * Date: 5/4/2024
+ * Version: 3.0.0 
  */
 
 package MP4_Package;

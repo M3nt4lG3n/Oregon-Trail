@@ -48,6 +48,8 @@ public class MP4_Window {
 	private JPanel riverPanel;
 	private JPanel tradePanel;
 	
+	private JButton travelButton;
+	
 	private JOptionPane popUP;
 	
 	private JLabel dateLabel;
@@ -73,6 +75,7 @@ public class MP4_Window {
 	private int consumptionRate = 3; //YHDOD
 	private int conversationSeed = 0;
 	private int currentWagonLocation = 450;
+	private int wagonSteps = 0;
 	private boolean atLandmark = false;
 	private boolean atOregon = false;
 	private boolean atShop = false;
@@ -88,6 +91,8 @@ public class MP4_Window {
 	private final int MAINY = 500;
 	
 	ArrayList<Landmark> landmarks = new ArrayList<Landmark>();
+	
+	private Timer clock;
 
 	/**
 	 * Launch the application.
@@ -157,7 +162,7 @@ public class MP4_Window {
 		landmarkLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		
 		//Interactions Setups
-		JButton travelButton = new JButton("Travel");
+		travelButton = new JButton("Travel");
 		travelButton.addActionListener(new ActionListener() {
 			/** 
 			 *
@@ -1192,7 +1197,7 @@ public class MP4_Window {
 		landmarkGraphicLabel.setBounds(0, 0, 127, 47);
 		
 		//Scale the wagon to a usable size
-		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Fort_Temporary.png"));
+		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/" + landmarks.get(index).getName() + ".png"));
 		Image newImgL = landmarkGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
 		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
 		
@@ -1203,7 +1208,7 @@ public class MP4_Window {
 	public void resetWagonGUI() {
 		landmarkImagePanel.setLocation(300 - landmarks.get(index).getDistance(), 200);
 		
-		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Wagon.png"));
+		ImageIcon landmarkGraphic = new ImageIcon(this.getClass().getResource("/Assets/"  + landmarks.get(index).getName() + ".png"));
 		Image newImgL = landmarkGraphic.getImage().getScaledInstance(254 / 2, 94 / 2, Image.SCALE_SMOOTH);
 		landmarkGraphicLabel.setIcon(new ImageIcon(newImgL));
 		
@@ -1212,7 +1217,24 @@ public class MP4_Window {
 	}
 	
 	public void moveWagonGUI() {
-		currentWagonLocation -= travelRate;
-		wagonImagePanel.setLocation(currentWagonLocation, 200);
+		wagonSteps = 0;
+		clock = new javax.swing.Timer(10, new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+					if(wagonSteps <= travelRate) {
+						if(atLandmark) {
+							clock.stop();
+							travelButton.setEnabled(true);
+						}
+						wagonImagePanel.setLocation(wagonImagePanel.getX() - 1, 200);
+						wagonSteps++;
+					}
+					else {
+						clock.stop();
+						travelButton.setEnabled(true);
+					}
+				}
+			});
+		travelButton.setEnabled(false);
+		clock.start();
 	}
 }
