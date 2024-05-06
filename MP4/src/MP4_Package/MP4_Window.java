@@ -525,6 +525,8 @@ public class MP4_Window {
 		suppliesFrame.setBounds(1000, 100, 450, 300);
 		suppliesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
+		stopFrame.setEnabled(false);
+		
 		suppliesPanel = new JPanel(new GridLayout(13, 1));
 		
 		JLabel stopFoodLabel = new JLabel("Food: " + wagon.getFoodWeight());
@@ -596,6 +598,9 @@ public class MP4_Window {
 	 */
 	public void createPaceWindow() {
 		System.out.println("Pace Display Created");
+		
+		stopFrame.setEnabled(false);
+		
 		paceFrame = new JFrame("Set Pace");
 		paceFrame.setBounds(1000, 100, 450, 300);
 		paceFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -614,6 +619,7 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Pace set to Steady");
+					stopFrame.setEnabled(true);
 					travelRate = 12;
 					paceFrame.dispatchEvent(new WindowEvent(paceFrame, WindowEvent.WINDOW_CLOSING));
 				}
@@ -632,6 +638,7 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Pace set to Strenuous");
+					stopFrame.setEnabled(true);
 					travelRate = 16;
 					paceFrame.dispatchEvent(new WindowEvent(paceFrame, WindowEvent.WINDOW_CLOSING));
 				}
@@ -650,6 +657,7 @@ public class MP4_Window {
 			 */
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Pace set to Greuling");
+					stopFrame.setEnabled(true);
 					travelRate = 20;
 					paceFrame.dispatchEvent(new WindowEvent(paceFrame, WindowEvent.WINDOW_CLOSING));
 				}
