@@ -1,8 +1,8 @@
 /*
  * File: MP4_Window.java
  * Author: Brian Bizon
- * Date: 4/26/2024
- * Version: 3.0.0 
+ * Date: 5/6/2024
+ * Version: 4.0.0 
  */
 
 package MP4_Package;
@@ -53,7 +53,7 @@ public class MP4_Window {
 	private JOptionPane popUP;
 	
 	private JLabel dateLabel;
-	JLabel foodLabel;
+	private JLabel foodLabel;
 	private JLabel weatherLabel;
 	private JLabel landmarkGraphicLabel;
 	
@@ -180,7 +180,7 @@ public class MP4_Window {
 				atShop = false;
 				atTrade = false;
 				//Updates the amount of resources
-				calculateConsumptionAmount();
+				calculateConsumptionAmount(1);
 				milesLabel.setText("" + calculateTravelDistance());
 				weatherLabel.setText("" + weather.pickRandomWeather());
 				//Check if the player has reached a landmark
@@ -229,7 +229,6 @@ public class MP4_Window {
 				stopFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				createStopDisplay(atShop, atTrade);
 				stopFrame.getContentPane().add(stopPanel);
-//				mainFrame.setEnabled(false);
 				stopFrame.pack();
 				stopFrame.setVisible(true);
 			}
@@ -297,7 +296,7 @@ public class MP4_Window {
 	 */
 	private void createStopDisplay(boolean shopEnabled, boolean tradeEnabled) {
 		mainFrame.setEnabled(false);
-		stopPanel = new JPanel(new GridLayout(9, 1));
+		stopPanel = new JPanel(new GridLayout(10, 1));
 		JButton proceedButton = new JButton("Proceed on the trail");
 		proceedButton.setBackground(Color.RED);
 		proceedButton.addActionListener(new ActionListener() {
@@ -340,11 +339,10 @@ public class MP4_Window {
 			 *
 			 * @param e  the e. 
 			 * 
-			 * Not yet implemented, will show the player's location on their total journey
+			 * Displays a map of the Oregon Trail
 			 */
 			public void actionPerformed(ActionEvent e) {
-					popUP = new JOptionPane();
-					popUP.showMessageDialog(null, "This feature is not yet implemented", "MVP Gaming", JOptionPane.ERROR_MESSAGE);
+					createMapDisplay();
 				}
 			});
 		stopPanel.add(mapButton);
@@ -406,7 +404,10 @@ public class MP4_Window {
 			 * Not Implemented, will eventually have the player perform a quick time whack a mole mini-game for gathering berries
 			 */
 			public void actionPerformed(ActionEvent e) {
+					calculateTravelDate(1);
+					calculateConsumptionAmount(1);
 					wagon.createBakingDisplay();
+					foodLabel.setText("" + wagon.foodWeight);		
 				}
 			});
 		stopPanel.add(huntButton);
@@ -578,6 +579,8 @@ public class MP4_Window {
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Closing Supplies Menu");
 					suppliesFrame.dispatchEvent(new WindowEvent(suppliesFrame, WindowEvent.WINDOW_CLOSING));
+					stopFrame.setVisible(true);
+					mainFrame.setVisible(true);
 					stopFrame.setEnabled(true);
 				}
 			});
@@ -815,6 +818,7 @@ public class MP4_Window {
 	 */
 	public void createRestWindow() {
 		System.out.println("Rest Display Created");
+		stopFrame.setEnabled(false);
 		restFrame = new JFrame("Rest for how many days?");
 		restFrame.setBounds(1000, 100, 450, 300);
 		restFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -880,6 +884,9 @@ public class MP4_Window {
 			public void actionPerformed(ActionEvent e) {
 					System.out.println("Resting for " + restDays + " Days");
 					calculateTravelDate(restDays);
+					calculateConsumptionAmount(restDays);
+					stopFrame.setEnabled(true);
+					restFrame.dispatchEvent(new WindowEvent(restFrame, WindowEvent.WINDOW_CLOSING));
 				}
 			});
 		restPanel.add(calculateRestButton);
@@ -895,10 +902,10 @@ public class MP4_Window {
 	 * Set the values in their respective classes
 	 *
 	 */
-	public void calculateConsumptionAmount() {
+	public void calculateConsumptionAmount(int days) {
 		//Food Consumption Rates based off of YHDOD
-		wagon.setFoodWeight((wagon.getFoodWeight() - (CharacterClass.getAmountOfPeople() * consumptionRate)));
-		wagon.setWaterAmount(wagon.getWaterAmount() - CharacterClass.getAmountOfPeople());
+		wagon.setFoodWeight((wagon.getFoodWeight() - (days * (CharacterClass.getAmountOfPeople() * consumptionRate))));
+		wagon.setWaterAmount((wagon.getWaterAmount() - (days * (CharacterClass.getAmountOfPeople()))));
 		if(wagon.foodWeight < 0) {
 			wagon.foodWeight = 0;
 		}
@@ -933,6 +940,8 @@ public class MP4_Window {
 		else {
 			flowWord = "fast";
 		}
+		
+		//GUI Shenanigans
 		JLabel riverLabel = new JLabel("You come across a " + flowWord + " river which is " + riverDepth + " ft deep and " + riverLength + " ft wide");
 		riverPanel.add(riverLabel);
 		
@@ -1025,7 +1034,7 @@ public class MP4_Window {
 		System.out.println("Creating Trade");
 		//GUI setup
 		tradeFrame = new JFrame("Trading");
-		tradeFrame.setBounds(800, 375, 450, 300);
+		tradeFrame.setBounds(800, 400, 450, 300);
 		tradeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		tradePanel = new JPanel(new GridLayout(1, 3));
@@ -1135,8 +1144,10 @@ public class MP4_Window {
 		
 		System.out.println("Creating Conversation");
 		conversationFrame = new JFrame("You stop to talk");
-		conversationFrame.setBounds(800, 375, 300, 300);
+		conversationFrame.setBounds(800, 400, 300, 300);
 		conversationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		JPanel conversationPanel = new JPanel(new GridLayout(2,1));
 		
 		//Get the conversation txt file
 		System.out.println("/Conversations_" + nameSeed + "/" + location + ".txt");
@@ -1153,8 +1164,18 @@ public class MP4_Window {
 		
 		//Make a label and add the conversation from above to it
 		JLabel conversationLabel = new JLabel(conversationText);
-		conversationFrame.getContentPane().add(conversationLabel);
+		conversationPanel.add(conversationLabel);
 		
+		JButton closeConversation = new JButton("Leave Conversation");
+		closeConversation.setSize(conversationFrame.getX(), 30);
+		closeConversation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				conversationFrame.dispatchEvent(new WindowEvent(conversationFrame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		conversationPanel.add(closeConversation);
+
+		conversationFrame.getContentPane().add(conversationPanel);
 		conversationFrame.pack();
 		conversationFrame.setVisible(true);
 	}
@@ -1212,7 +1233,12 @@ public class MP4_Window {
 		landmarkImagePanel.add(landmarkGraphicLabel);
 		imagePanel.add(landmarkImagePanel, 1, 0);
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 *
+	 * Resets the wagon back to the start and updates the landmark icon
+	 */
 	public void resetWagonGUI() {
 		landmarkImagePanel.setLocation(300 - landmarks.get(index).getDistance(), 200);
 		
@@ -1223,10 +1249,23 @@ public class MP4_Window {
 		currentWagonLocation = 450;
 		wagonImagePanel.setLocation(currentWagonLocation, 200);
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 * 
+	 * Shifts the wagon image to the left every 10 milliseconds
+	 */
 	public void moveWagonGUI() {
 		wagonSteps = 0;
 		clock = new javax.swing.Timer(10, new ActionListener() {
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param evt  the evt. 
+			 * 
+			 * Shows the image moving to its spot
+			 */
 			public void actionPerformed(ActionEvent evt) {
 					if(wagonSteps <= travelRate) {
 						if(atLandmark) {
@@ -1244,5 +1283,68 @@ public class MP4_Window {
 			});
 		travelButton.setEnabled(false);
 		clock.start();
+	}
+	/** 
+	 *
+	 * It is a constructor. 
+	 *
+	 * Generates a frame and displays the map
+	 * Closed when the space bar is pressed
+	 */
+	public void createMapDisplay() {
+		System.out.println("Creating Map");
+		
+		popUP.showMessageDialog(null, "Press space to close map", "Map Gaming", JOptionPane.PLAIN_MESSAGE);
+		stopFrame.setEnabled(false);
+		
+		JFrame mapFrame = new JFrame();
+		mapFrame.setBounds(800, 400, 300, 300);
+		mapFrame.addKeyListener(new KeyListener() {
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 */
+			public void keyPressed(KeyEvent e) {
+				int vk = e.getKeyCode();
+				if (vk == KeyEvent.VK_SPACE) {
+					mapFrame.dispatchEvent(new WindowEvent(mapFrame, WindowEvent.WINDOW_CLOSING));
+					stopFrame.setEnabled(true);
+					stopFrame.setVisible(true);
+					mainFrame.setVisible(true);
+				}
+			}
+			//These two don't do anything but Eclipse didn't like when they were gone
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 */
+			public void keyReleased(KeyEvent e) {
+			}
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 * @override
+			 */
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		ImageIcon mapGraphic = new ImageIcon(this.getClass().getResource("/Assets/Oregon_Trail_Map.jpg"));
+		Image backImg = mapGraphic.getImage().getScaledInstance(750, 350, Image.SCALE_SMOOTH);
+		
+		JLabel mapLabel = new JLabel();
+		mapLabel.setIcon(new ImageIcon(backImg));
+		
+		mapFrame.add(mapLabel);
+		mapFrame.pack();
+		mapFrame.setVisible(true);
 	}
 }

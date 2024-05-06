@@ -289,6 +289,13 @@ public class Wagon {
     	foodWeight -= foodUsed;
         waterAmount -= waterUsed;
     }
+    /** 
+    *
+    * It is a constructor. 
+    *
+    * Checks if there is a random event
+    * If there is, perform the appropriate actions and remove appropriate items
+    */
     public void randomEventUpdate() {
     	Random rand = new Random();
 		int num = rand.nextInt(8);
@@ -330,8 +337,15 @@ public class Wagon {
 				setFoodWeight((int) (getFoodWeight()*.5));
 			}
 		}
+    /** 
+    *
+    * It is a constructor. 
+    * 
+    * Generates a red line with a green space
+    * A black bar will be instantiated at the far left, will move later
+    */
     public void createBakingDisplay() {
-		setStarterAmount(getStarterAmount() - 5);
+    	setStarterAmount(getStarterAmount() - 5);
 		setFlourAmount(getFlourAmount() - 5);
 		setWaterAmount(getWaterAmount() - 5);
 		
@@ -344,16 +358,34 @@ public class Wagon {
 		
 		System.out.println("Creating Baking Minigame");
 		bakingFrame = new JFrame("Bake");
-		bakingFrame.setBounds(800, 375, 600, 50);
+		bakingFrame.setBounds(800, 400, 600, 50);
 		bakingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		bakingFrame.addKeyListener(new KeyListener() {
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 */
 			public void keyPressed(KeyEvent e) {
 				int vk = e.getKeyCode();
 				onSpacePress(vk);
 			}
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 */
 			public void keyReleased(KeyEvent e) {
 			}
-			@Override
+			/** 
+			 *
+			 * It is a constructor. 
+			 *
+			 * @param e  the e. 
+			 * @Override
+			 */
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
 				
@@ -384,7 +416,16 @@ public class Wagon {
 		
 		moveSelectionBar();
 	}
-	
+    /** 
+    *
+    * It is a constructor. 
+    *
+    * @param vk  the vk. 
+    * 
+    * Checks if the space bar was pressed
+    * If yes, checks the location of the black selector bar
+    * Allot resources accordingly
+    */
 	public void onSpacePress(int vk) {
 		clock.stop();
 		if(vk == KeyEvent.VK_SPACE) {
@@ -403,9 +444,20 @@ public class Wagon {
 		}
 		bakingFrame.dispose();
 	}
-	
+	/** 
+	 *
+	 * It is a constructor. 
+	 * 
+	 * Moves the black selection bar 5 units right every 10 milliseconds
+	 */
 	public void moveSelectionBar() {
 		clock = new javax.swing.Timer(10, new ActionListener() {
+		/** 
+		 *
+		 * It is a constructor. 
+		 *
+		 * @param evt  the evt. 
+		 */
 		public void actionPerformed(ActionEvent evt) {
 				selectionPanel.setLocation(selectionPanel.getX() + 5, selectionPanel.getY());
 				currentLocation = selectionPanel.getX();

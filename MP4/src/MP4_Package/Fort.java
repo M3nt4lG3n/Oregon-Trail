@@ -195,7 +195,7 @@ public class Fort extends Landmark{
 		moneyLabel = new JLabel("Current Money: " + wagon.getMoneyAmount());
 		
 		waterCostLabel = new JLabel("Water: " + df.format((waterCost + (waterCost * (.05 * fortStops)))));
-		flourCostLabel = new JLabel("Flo	ur: " + df.format((flourCost + (flourCost * (.05 * fortStops)))));
+		flourCostLabel = new JLabel("Flour: " + df.format((flourCost + (flourCost * (.05 * fortStops)))));
 		starterCostLabel = new JLabel("Starter: " + df.format((starterCost + (starterCost * (.05 * fortStops)))));
 		clothingCostLabel = new JLabel("Clothing: " + df.format((clothingCost + (clothingCost * (.05 * fortStops)))));
 		wagonCostLabel = new JLabel("Wagon Wheels/Axels/Tongues: " + df.format((wagonCost + (wagonCost * (.05 * fortStops)))));
