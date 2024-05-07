@@ -15,18 +15,23 @@ public class RandomEvent {
 		int chance = rand.nextInt(100);
 		
 		if(chance<=2) {
+			System.out.println("raid");
 			raid=true;
 		}
 		else if(chance<=7) {
+			System.out.println("snake");
 			snakeBite=true;
 		}
 		else if(chance<=8) {
+			System.out.println("fire");
 			fire=true;
 		}
 		else if(chance<=14) {
+			System.out.println("broken limb");
 			brokenLimb=true;
 		}
 		else if(chance<=20) {
+			System.out.println("sick");
 			sickness=true;
 		}
 		else {

@@ -56,12 +56,15 @@ public class MP4_Window {
 	private JLabel foodLabel;
 	private JLabel weatherLabel;
 	private JLabel landmarkGraphicLabel;
+	private JLabel healthLabel;
 	
 	Random random = new Random();
 	Wagon wagon = new Wagon();
 	Events events = new Events();
 	Trader trader = new Trader();
 	Weather weather = new Weather();
+	RandomEvent randomEvent = new RandomEvent();
+	CharacterClass characterClass = new CharacterClass("", false, 0, false);
 	
 	private String currentMonth = "May";
 	private String nameSeed = "";
@@ -127,6 +130,7 @@ public class MP4_Window {
 	 */
 	private void initialize() {
 		setLandmarks();
+		characterClass.setCharacters();
 		currentDistance = landmarks.get(index).getDistance();
 		createDisplay();
 	}
@@ -183,6 +187,28 @@ public class MP4_Window {
 				calculateConsumptionAmount(1);
 				milesLabel.setText("" + calculateTravelDistance());
 				weatherLabel.setText("" + weather.pickRandomWeather());
+				randomEvent.RandomEventsChance();
+				characterClass.runCharClass();
+				characterClass.addHealthScores();
+				int healthScore = characterClass.getHealthScore();
+				System.out.println(healthScore);
+				String healthText = "";
+				if(healthScore <= 100) {
+					healthText = "Horrendous";
+					healthLabel.setText(healthText);
+				}
+				else if(healthScore <= 200) {
+					healthText = "Bad";
+					healthLabel.setText(healthText);
+				}
+				else if(healthScore <= 300) {
+					healthText = "Meh";
+					healthLabel.setText(healthText);
+				}
+				else {
+					healthText = "Good";
+					healthLabel.setText(healthText);
+				}
 				//Check if the player has reached a landmark
 				if(atLandmark) {
 					landmarkCount++;
@@ -254,7 +280,7 @@ public class MP4_Window {
 		healthTextLabel.setHorizontalAlignment(SwingConstants.TRAILING);
 		statsPanel.add(healthTextLabel);
 		
-		JLabel healthLabel = new JLabel("Healthy (Placeholder)");
+		healthLabel = new JLabel("Healthy (Placeholder)");
 		healthLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		statsPanel.add(healthLabel);
 		
@@ -493,7 +519,6 @@ public class MP4_Window {
 		}
 		
 		currentDay += daysSpent;
-		System.out.println(currentDay);
 		if(currentDay > maxDays) {
 			currentDay = 1;
 			switch(currentMonth) {
@@ -719,7 +744,6 @@ public class MP4_Window {
 		//Get each value without the commas and put them into a object variable
 		//set that full object into an arrayList
 		while(scr.hasNext()) {
-			System.out.println("Reading in");
 			Scanner reader = new Scanner(scr.next());
 			reader.useDelimiter(",");
 			String name = reader.next();

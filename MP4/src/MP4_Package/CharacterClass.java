@@ -22,6 +22,7 @@ public class CharacterClass {
 	boolean charSick;
 	private int consumptionRate=3;
 	public static int numberOfPeople = 4;
+	public int healthScore;
 	static ArrayList<CharacterClass> characters = new ArrayList<CharacterClass>();
 
 	/** 
@@ -123,12 +124,13 @@ public class CharacterClass {
 	 * @return the amount of people
 	 */
 	public static int getAmountOfPeople() {
+		int numberAlive = 0;
 		for(int i = 0; i < characters.size(); i++) {
 			if (characters.get(i).isAlive()) {
-				numberOfPeople++;
+				numberAlive++;
 			}
 		}
-		return numberOfPeople;
+		return numberAlive;
 	}
 	
 	/** 
@@ -144,7 +146,6 @@ public class CharacterClass {
 		//Get each value without the commas and put them into a object variable
 		//set that full object into an arrayList
 		while(scr.hasNext()) {
-			System.out.println("Reading in");
 			Scanner reader = new Scanner(scr.next());
 			//scr.nextLine();
 			reader.useDelimiter(",");
@@ -177,6 +178,17 @@ public class CharacterClass {
 		}
 	}
 	
+	public int getHealthScore() {
+		return healthScore;
+	}
+	
+	public void addHealthScores() {
+		healthScore = 0;
+		for(int i=0;i<characters.size();i++) {
+			healthScore += characters.get(i).returnHealth();
+		}
+	}
+	
 	public int healthChange(int health) {
 		if(isSick()==true) {
 			health--;
@@ -202,9 +214,11 @@ public class CharacterClass {
 			charHealth=charHealth-3;
 		}
 	}
-	public void runCharClass() {
+	public static void runCharClass() {
 		Random rand = new Random();
 		int num = rand.nextInt(getAmountOfPeople());
+		System.out.println(num);
+		System.out.println(getAmountOfPeople());
 		characters.get(num).randomHealthEvents();
 		for(int i=0;i<getAmountOfPeople();i++) {
 			characters.get(i).healthChange(characters.get(i).returnHealth());
