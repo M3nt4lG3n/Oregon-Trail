@@ -933,6 +933,9 @@ public class MP4_Window {
 		if(wagon.foodWeight < 0) {
 			wagon.foodWeight = 0;
 		}
+		if(wagon.waterAmount < 0) {
+			wagon.waterAmount = 0;
+		}
 		foodLabel.setText("" + wagon.getFoodWeight());
 	}
 	/** 
