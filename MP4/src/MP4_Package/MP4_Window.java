@@ -64,6 +64,7 @@ public class MP4_Window {
 	Trader trader = new Trader();
 	Weather weather = new Weather();
 	RandomEvent randomEvent = new RandomEvent();
+	gatheringGame GatheringGame = new gatheringGame();
 	CharacterClass characterClass = new CharacterClass("", false, 0, false);
 	
 	private String currentMonth = "May";
@@ -280,7 +281,7 @@ public class MP4_Window {
 		healthTextLabel.setHorizontalAlignment(SwingConstants.TRAILING);
 		statsPanel.add(healthTextLabel);
 		
-		healthLabel = new JLabel("Healthy (Placeholder)");
+		healthLabel = new JLabel("Good");
 		healthLabel.setHorizontalAlignment(SwingConstants.LEADING);
 		statsPanel.add(healthLabel);
 		
@@ -458,6 +459,21 @@ public class MP4_Window {
 					}
 				});
 			stopPanel.add(tradeButton);
+			JButton gatherButton = new JButton("Gather Berries");
+			gatherButton.addActionListener(new ActionListener() {
+				/** 
+				 *
+				 * Action performed
+				 *
+				 * @param e  the e. 
+				 * 
+				 * Not implemented, will allow the player to trade with known/random people on the trail
+				 */
+				public void actionPerformed(ActionEvent e) {
+						GatheringGame.createGatheringGUI();
+					}
+				});
+			stopPanel.add(gatherButton);
 			if(!shopEnabled) {
 				JButton conversationButton = new JButton("Stop to Talk");
 				conversationButton.addActionListener(new ActionListener() {
@@ -1178,33 +1194,39 @@ public class MP4_Window {
 		
 		//Get the conversation txt file
 		System.out.println("/Conversations_" + nameSeed + "/" + location + ".txt");
-		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/Conversations_" + nameSeed + "/" + location + ".txt"));
-		Scanner scr = new Scanner(in);
-		//Formatting is a pain but here it is
-		//HTML was the easiest way to do this
-		conversationText += "<html>";
-		while (scr.hasNextLine()) {
-			String tempText = scr.nextLine();
-			conversationText += tempText + "<br>";
-		}
-		conversationText += "</html>";
-		
-		//Make a label and add the conversation from above to it
-		JLabel conversationLabel = new JLabel(conversationText);
-		conversationPanel.add(conversationLabel);
-		
-		JButton closeConversation = new JButton("Leave Conversation");
-		closeConversation.setSize(conversationFrame.getX(), 30);
-		closeConversation.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				conversationFrame.dispatchEvent(new WindowEvent(conversationFrame, WindowEvent.WINDOW_CLOSING));
+		try {
+			InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream("/Conversations_" + nameSeed + "/" + location + ".txt"));
+			Scanner scr = new Scanner(in);
+			//Formatting is a pain but here it is
+			//HTML was the easiest way to do this
+			conversationText += "<html>";
+			while (scr.hasNextLine()) {
+				String tempText = scr.nextLine();
+				conversationText += tempText + "<br>";
 			}
-		});
-		conversationPanel.add(closeConversation);
+			conversationText += "</html>";
+			
+			//Make a label and add the conversation from above to it
+			JLabel conversationLabel = new JLabel(conversationText);
+			conversationPanel.add(conversationLabel);
+			
+			JButton closeConversation = new JButton("Leave Conversation");
+			closeConversation.setSize(conversationFrame.getX(), 30);
+			closeConversation.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					conversationFrame.dispatchEvent(new WindowEvent(conversationFrame, WindowEvent.WINDOW_CLOSING));
+				}
+			});
+			conversationPanel.add(closeConversation);
 
-		conversationFrame.getContentPane().add(conversationPanel);
-		conversationFrame.pack();
-		conversationFrame.setVisible(true);
+			conversationFrame.getContentPane().add(conversationPanel);
+			conversationFrame.pack();
+			conversationFrame.setVisible(true);
+		}
+		catch(Exception e) {
+			popUP.showMessageDialog(null, "No Dialogue Found", "Problem", JOptionPane.ERROR_MESSAGE);
+		}
+		
 	}
 	/** 
 	 *
